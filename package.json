@@ -1,0 +1,21 @@
+{
+  "name": "recipe-management",
+  "version": "1.0.0",
+  "description": "recipe management application",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "recipe-app"
+  },
+  "author": "ZainebDrira",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^10.2.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
