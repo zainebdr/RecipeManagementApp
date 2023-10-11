@@ -1,70 +1,46 @@
-const express = require('express')
+const express = require('express');
+
+const mongoose = require('mongoose');
+const recipesRouter=require('./routes/RecipesRoutes')
+
 //app = object of type express , represent our application ,have a usuful method 
 const app = express()
 
 //add middleware
 app.use(express.json())
-const recipes= [
-    {id:1,name:'recipes 1 '},
-    {id:2,name:'recipes 2 '},
-    {id:3,name:'recipes 3 '},
-   
-   
-];
 
-//contains path and function 
-app.get('/',(req,res)=>{
-    console.log("hello world!")
-    //callback function also call route handler
-    res.send('hello world!!!!!')
-})
+app.use((req,res,next)=>{
+    //res.status(404)
+    //res.send("erooor not found")
+    const err =new Error("Not found");
+    err.status=404;
+    //when we call next and we pass err then the error handler will be called    
+    next(err);
+});
 
-//get all recipes
-app.get('/api/recipes',(req,res)=>{
-    res.send(recipes)
-})
-
-//get a specific recipe by id
-app.get('/api/recipes/:id',(req,res)=>{
-   const recipe= recipes.find(c=>c.id===parseInt(req.params.id));
-   if (!recipe) return res.status(404).send('The id of given recipe was not found');
-   //otherwise
-   res.send(recipe)
-})
-
-
-//create a new recipe
-app.post('/api/recipes',(req,res)=>{
-    const recipe={
-        id:recipes.length+1,
-        name:req.body.name
-    }
-    //add it to the array
-    recipes.push(recipe)  
-    res.send(recipe)
-})
-
-//update an existant recipe
-app.put('/api/recipes/:id',(req,res)=>{
-    //look up the recipe is exist or not
-    const  recipe= recipes.find(c=>c.id===parseInt(req.params.id));
-    if (!recipe) return res.status(404).send('The recipe with the given  id was not found')
-    recipe.name=req.body.name;
-    res.send(recipe);
-})
-
-//delete a recipe
-app.delete('/api/recipes/:id',(req,res)=>{
-    //look up the recipe is exist or not
-    const  recipe= recipes.find(c=>c.id===parseInt(req.params.id));
-    if (!recipe) return res.status(404).send('The recipe with the given  id was not found')
-    const index =recipes.indexOf(recipe)
-    recipes.splice(index,1)
-    res.send(recipe)
-    
-})
+// Error handler middleware
+app.use((err, req, res, next) => {
+    res.status(err.status || 500);
+    res.json({
+      error: {
+        status: err.status || 500,
+        message: err.message,
+      },
+    });
+  });
 
 //if port is set ( set PORT = xxxx) for the env production else we use 3000
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000
 // ` so we can use a template string  
-app.listen(port,()=>console.log(` Listining on port ${port}..` ))
+app.listen(port,()=>{console.log(` Listining on port ${port}..` )}  )
+
+
+//connection to mongo db
+mongoose.connect('mongodb://127.0.0.1:27017/RecipesMangDb', { useNewUrlParser: true, useUnifiedTopology: true }); 
+const db=mongoose.connection
+db.on('error',(err)=> console.error(err));
+db.once('open',()=>{
+    console.log("connected")
+});
+
+app.use('/api/recipes', recipesRouter);
