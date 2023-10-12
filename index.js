@@ -2,13 +2,18 @@ const express = require('express');
 const createError = require('http-errors');
 const mongoose = require('mongoose');
 const recipesRouter=require('./routes/RecipesRoutes')
+const cors = require('cors'); // Import the cors middleware : allowing requests from any origin. 
 
 //app = object of type express , represent our application ,have a usuful method 
 const app = express()
-
 //add middleware
 app.use(express.json())
 
+app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:4200', // The URL of your Angular application
+};
+app.use(cors(corsOptions));
 
 //connection to mongo db
 mongoose.connect('mongodb://127.0.0.1:27017/RecipesMangDb', { useNewUrlParser: true, useUnifiedTopology: true })
